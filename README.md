@@ -1,2 +1,65 @@
 # update-Storage-Node-og-Labs
-my operator nodelabs
+🔩 Updates OGLabs
+
+🟢Storage Node (Turbo) Updates
+cd 0g-storage-node/run/db
+rm -r data_db 
+sudo systemctl daemon-reload && \
+sudo systemctl enable zgs && \
+sudo systemctl restart zgs && \
+sudo systemctl status zgs
+
+🔔data_db hasil extract snaphoot mempengaruhi tx di onchain, solusi kalau tx macet silahkan follow step diatas, sekaligus mengikuti rules resmi dari docs terkait penggunaan snapshoot.
+
+🟢Update & Migrate Storage Node (Turbo => Standard) V0.8.6
+      *Pastikan backup private key dan hapus folder/file 0g-storage-node sebelum menjalankan scripts
+
+rm -r 0g-storage-node
+git clone -b v0.8.6 https://github.com/0glabs/0g-storage-node.git
+cd $HOME/0g-storage-node
+git stash
+git fetch --all --tags
+git checkout 67a8241
+git submodule update --init
+cargo build --release
+rm -rf $HOME/0g-storage-node/run/config.toml
+curl -o $HOME/0g-storage-node/run/config.toml https://raw.githubusercontent.com/zstake-xyz/test/refs/heads/main/0g_storage_config.toml
+nano $HOME/0g-storage-node/run/config.toml
+
+Paste Private Key "miner_key"
+
+CTRL X, Y, Enter
+
+sudo tee /etc/systemd/system/zgs.service > /dev/null <<EOF
+[Unit]
+Description=ZGS Node
+After=network.target
+
+[Service]
+User=$USER
+WorkingDirectory=$HOME/0g-storage-node/run
+ExecStart=$HOME/0g-storage-node/target/release/zgs_node --config $HOME/0g-storage-node/run/config.toml
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable zgs && sudo systemctl start zgs
+tail -f ~/0g-storage-node/run/log/zgs.log.$(TZ=UTC date +%Y-%m-%d)
+
+🔔Tunggu sync 1-7 hari karena ini tidak menggunakan snaphoot (Manual).
+
+🟢Recommend RPC :
+      
+https://evmrpc-testnet.0g.ai
+https://evm-rpc.0g.testnet.node75.org
+
+Atau kalian bisa mencari atau backtest sendiri RPC yang tersedia disini OriginStake  (https://0g.originstake.com/rpc-api)
+
+🔔Tips :
+      Untuk yang sudah menjalankan tipe turbo dan tidak ada masalah (TX Jalan) disarankan untuk hapus data_db saja sesuai step diatas tanpa perlu migrate ke standard, tapi kalau memang tidak ada TX sama sekali silahkan migrate dari turbo ke standard, versi ini lebih cocok untuk low spec tetapi boros di fee.
+
+🔔Mainnet Updates :
+      Dari artikel terbaru di official OGLabs, bisa di bilang untuk mainnet di undur dari Q1 ke Q2. artinya masih ada waktu 1-3 Bulan untuk push TX di node ataupun di Testnet.
