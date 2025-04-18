@@ -1,18 +1,19 @@
 # update-Storage-Node-og-Labs
 🔩 Updates OGLabs
 
-🟢Storage Node (Turbo) Updates
-cd 0g-storage-node/run/db
+**🟢Storage Node (Turbo) Updates**
+```bash
+ cd 0g-storage-node/run/db
 rm -r data_db 
 sudo systemctl daemon-reload && \
 sudo systemctl enable zgs && \
 sudo systemctl restart zgs && \
 sudo systemctl status zgs
+```
 
 
-🟢Update & Migrate Storage Node (Turbo => Standard) V0.8.6
-
-
+**🟢Update & Migrate Storage Node (Turbo => Standard) V0.8.6**
+```bash
 rm -r 0g-storage-node
 git clone -b v0.8.6 https://github.com/0glabs/0g-storage-node.git
 cd $HOME/0g-storage-node
@@ -47,6 +48,7 @@ WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload && sudo systemctl enable zgs && sudo systemctl start zgs
 tail -f ~/0g-storage-node/run/log/zgs.log.$(TZ=UTC date +%Y-%m-%d)
+```
 
 
 🟢Recommend RPC :
